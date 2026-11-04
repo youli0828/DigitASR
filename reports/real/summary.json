@@ -1,0 +1,178 @@
+{
+  "source": "https://gitcode.com/Universal-Tool/9baeb",
+  "seed": 42,
+  "dataset_sha256": "7bd6d32e912f2222e2976eef9c80057c293bfe27454198f1ddd1b7622fecb8ff",
+  "count": 250,
+  "unique_audio_sha256": 240,
+  "split_method": "First fold of StratifiedGroupKFold(5, shuffle=True, random_state=seed)",
+  "grouping": "Audio SHA-256; duplicates never cross holdout or CV folds",
+  "speaker_disjoint": "Unavailable: word-index filenames; no verified speaker metadata",
+  "selection": "Highest training CV mean; ties use hamming before hann, SVM before RF",
+  "best_model": "svm_hamming",
+  "experiments": [
+    {
+      "model": "svm",
+      "window": "hamming",
+      "train_count": 200,
+      "accuracy": 1.0,
+      "correct": 50,
+      "total": 50,
+      "cv": {
+        "scope": "200 training recordings only; held-out test excluded",
+        "folds": [
+          {
+            "accuracy": 0.975,
+            "correct": 39,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          },
+          {
+            "accuracy": 0.975,
+            "correct": 39,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          }
+        ],
+        "mean_accuracy": 0.99,
+        "correct": 198,
+        "total": 200
+      }
+    },
+    {
+      "model": "random_forest",
+      "window": "hamming",
+      "train_count": 200,
+      "accuracy": 0.98,
+      "correct": 49,
+      "total": 50,
+      "cv": {
+        "scope": "200 training recordings only; held-out test excluded",
+        "folds": [
+          {
+            "accuracy": 0.975,
+            "correct": 39,
+            "total": 40
+          },
+          {
+            "accuracy": 0.975,
+            "correct": 39,
+            "total": 40
+          },
+          {
+            "accuracy": 0.875,
+            "correct": 35,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          },
+          {
+            "accuracy": 0.925,
+            "correct": 37,
+            "total": 40
+          }
+        ],
+        "mean_accuracy": 0.95,
+        "correct": 190,
+        "total": 200
+      }
+    },
+    {
+      "model": "svm",
+      "window": "hann",
+      "train_count": 200,
+      "accuracy": 1.0,
+      "correct": 50,
+      "total": 50,
+      "cv": {
+        "scope": "200 training recordings only; held-out test excluded",
+        "folds": [
+          {
+            "accuracy": 0.975,
+            "correct": 39,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          },
+          {
+            "accuracy": 0.975,
+            "correct": 39,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          }
+        ],
+        "mean_accuracy": 0.99,
+        "correct": 198,
+        "total": 200
+      }
+    },
+    {
+      "model": "random_forest",
+      "window": "hann",
+      "train_count": 200,
+      "accuracy": 0.98,
+      "correct": 49,
+      "total": 50,
+      "cv": {
+        "scope": "200 training recordings only; held-out test excluded",
+        "folds": [
+          {
+            "accuracy": 0.95,
+            "correct": 38,
+            "total": 40
+          },
+          {
+            "accuracy": 0.95,
+            "correct": 38,
+            "total": 40
+          },
+          {
+            "accuracy": 0.875,
+            "correct": 35,
+            "total": 40
+          },
+          {
+            "accuracy": 1.0,
+            "correct": 40,
+            "total": 40
+          },
+          {
+            "accuracy": 0.925,
+            "correct": 37,
+            "total": 40
+          }
+        ],
+        "mean_accuracy": 0.9400000000000001,
+        "correct": 188,
+        "total": 200
+      }
+    }
+  ]
+}

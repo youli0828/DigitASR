@@ -1,0 +1,72 @@
+{
+  "engine": "eSpeak NG",
+  "engine_version": "1.52.0",
+  "loader_version": "0.2.4",
+  "voice": "cmn",
+  "output_sample_rate": 16000,
+  "engine_sample_rate": 22050,
+  "source": "Original synthesis of the ten Unicode characters 零一二三四五六七八九",
+  "profiles": [
+    [
+      "train",
+      130,
+      35
+    ],
+    [
+      "train",
+      150,
+      45
+    ],
+    [
+      "train",
+      170,
+      55
+    ],
+    [
+      "train",
+      190,
+      65
+    ],
+    [
+      "train",
+      140,
+      60
+    ],
+    [
+      "train",
+      160,
+      70
+    ],
+    [
+      "train",
+      180,
+      40
+    ],
+    [
+      "train",
+      200,
+      50
+    ],
+    [
+      "test",
+      145,
+      40
+    ],
+    [
+      "test",
+      165,
+      50
+    ],
+    [
+      "test",
+      185,
+      60
+    ],
+    [
+      "test",
+      155,
+      65
+    ]
+  ],
+  "count": 120
+}

@@ -1,0 +1,5 @@
+model,window,train_count,correct,test_count,accuracy,dataset_sha256
+svm,hamming,80,40,40,1.0,07377a3ded200375d503afc3ffcf1cbfb4a9957c772f94eab0b7fab13404d17b
+svm,hann,80,40,40,1.0,07377a3ded200375d503afc3ffcf1cbfb4a9957c772f94eab0b7fab13404d17b
+random_forest,hamming,80,40,40,1.0,07377a3ded200375d503afc3ffcf1cbfb4a9957c772f94eab0b7fab13404d17b
+random_forest,hann,80,40,40,1.0,07377a3ded200375d503afc3ffcf1cbfb4a9957c772f94eab0b7fab13404d17b
