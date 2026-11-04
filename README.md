@@ -30,7 +30,23 @@ with MFCC features, SVM / random forest baselines, and a Gradio demo.
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev,demo]"
+python -m pip install -e ".[dev,demo,plots]"
+python scripts/download_gitcode_digits.py
+python scripts/run_real_experiments.py
+```
+
+下载脚本无需 Git，使用 Python 标准库将免费 GitCode 中文数字数据集解包到
+`data/external/gitcode_digits/`，校验恰好 250 个 WAV。重复运行会验证已有数量并跳过下载；
+若解包未完成，会优先复用本地 `source.zip`。可用 `--output 路径` 指定其他目录，
+训练时对应使用 `python scripts/run_real_experiments.py --data 路径`。
+脚本每次都会打印许可提示：**仅限非商业用途，禁止再分发音频及压缩包**。
+这些本地文件已被 `.gitignore` 排除，请勿加入提交。
+`run_real_experiments.py` 完成真实数据训练与评估，将模型保存到 `artifacts/real/`，
+评估结果写入 `reports/real/`。
+
+使用仓库内的合成样例训练、推理和启动 Demo：
+
+```powershell
 python scripts/run_experiments.py
 digit-asr data/samples/test/0_profile08.wav --model artifacts/svm_hamming/model.joblib
 python demos/app.py
