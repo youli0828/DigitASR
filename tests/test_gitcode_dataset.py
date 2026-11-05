@@ -22,13 +22,14 @@ def test_gitcode_reject_unknown_label():
         gitcode_digit_label("unknown-1.wav")
 
 
-def test_gitcode_stratification_and_duplicate_isolation(tmp_path):
+@pytest.mark.parametrize("seed", [0, 42, 2026])
+def test_gitcode_stratification_and_duplicate_isolation(tmp_path, seed):
     for word in DIGIT_WORDS:
         for index in range(1, 26):
             # Two filenames deliberately share content within each digit.
             content = f"{word}-{1 if index == 2 else index}".encode()
             (tmp_path / f"{word}-{index}.wav").write_bytes(content)
-    manifest = prepare_gitcode_manifest(tmp_path)
+    manifest = prepare_gitcode_manifest(tmp_path, seed=seed)
     rows = read_manifest(manifest)
     assert len(rows) == 250
     assert len({r["sha256"] for r in rows}) == 240
@@ -38,8 +39,10 @@ def test_gitcode_stratification_and_duplicate_isolation(tmp_path):
     assert Counter(r["label"] for r in test) == Counter({i: 5 for i in range(10)})
     assert not {r["sha256"] for r in train} & {r["sha256"] for r in test}
     fingerprint = dataset_fingerprint(rows)
-    prepare_gitcode_manifest(tmp_path)
+    prepare_gitcode_manifest(tmp_path, seed=seed)
     assert dataset_fingerprint(read_manifest(manifest)) == fingerprint
+    prepare_gitcode_manifest(tmp_path, seed=seed + 1)
+    assert dataset_fingerprint(read_manifest(manifest)) != fingerprint
 
 
 def test_gitcode_reject_incomplete_dataset(tmp_path):

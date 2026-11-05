@@ -39,9 +39,11 @@ def prepare_gitcode_manifest(root: str | Path, seed: int = 42) -> Path:
     if Counter(labels) != Counter({digit: 25 for digit in range(10)}):
         raise ValueError("Expected exactly 250 WAV files, 25 per digit")
     hashes = [hashlib.sha256(path.read_bytes()).hexdigest() for path in paths]
-    _, test = next(
-        StratifiedGroupKFold(5, shuffle=True, random_state=seed).split(paths, labels, hashes)
-    )
+    # Shuffle group IDs explicitly: sklearn <1.8 shuffles counts without remapping IDs.
+    shuffled_hashes = np.random.RandomState(seed).permutation(np.unique(hashes))
+    group_ids = {digest: index for index, digest in enumerate(shuffled_hashes)}
+    groups = [group_ids[digest] for digest in hashes]
+    _, test = next(StratifiedGroupKFold(5, shuffle=False).split(paths, labels, groups))
     test = set(test)
     manifest = root / "manifest.csv"
     with manifest.open("w", encoding="utf-8", newline="") as stream:
