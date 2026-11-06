@@ -24,8 +24,11 @@ class FeatureConfig:
     window: str = "hamming"
     pre_emphasis: float = 0.97
     temporal_bins: int = 4
+    sequence_frames: int | None = None
 
     def __post_init__(self):
+        if self.sequence_frames is not None and self.sequence_frames < 4:
+            raise ValueError("sequence_frames must be at least four")
         if self.window not in ("hann", "hamming"):
             raise ValueError("window must be hann or hamming")
         if not (0 < self.n_mfcc <= self.n_mels <= self.n_fft // 2 + 1):
@@ -44,6 +47,12 @@ def extract_features(audio: np.ndarray, config: FeatureConfig | None = None) -> 
     mel_basis = librosa.filters.mel(sr=config.sample_rate, n_fft=config.n_fft, n_mels=config.n_mels)
     log_mel = librosa.power_to_db(mel_basis @ power.T, ref=1.0)
     mfcc = librosa.feature.mfcc(S=log_mel, n_mfcc=config.n_mfcc)
+    if config.sequence_frames is not None:
+        indices = np.linspace(0, mfcc.shape[1] - 1, config.sequence_frames)
+        return np.array(
+            [np.interp(indices, np.arange(mfcc.shape[1]), row) for row in mfcc],
+            dtype=np.float32,
+        )
     # Pool over normalized time so word order survives without fixed-length audio.
     indices = np.linspace(0, mfcc.shape[1] - 1, max(config.temporal_bins, mfcc.shape[1]))
     aligned = np.array([np.interp(indices, np.arange(mfcc.shape[1]), row) for row in mfcc])

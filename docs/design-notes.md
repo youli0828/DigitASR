@@ -34,4 +34,22 @@ Gradio 上传/录音得到路径，DigitRecognizer 使用相同加载和特征�
 CI 在 Linux 的 Python 3.10/3.12/3.14 上安装包、运行 ruff 和 pytest；本地验证以 RESULTS.md
 记录为准，不声称远程 CI 已执行。没有初始化 Git 或创建提交。
 
-没有实现 M4 神经网络、ONNX、连续语音或移动端功能。
+未实现 ONNX、连续语音或移动端功能。
+
+## 12. 轻量 CNN 基线与真实数据对比
+
+可选 `.[torch]` 启用 3,914 参数的 1D CNN；默认安装、SVM 加载与推理不导入 torch。
+CNN 共用预处理和 Hamming MFCC 提取，保留 13×64 时序输入；旧特征默认仍输出 78 维。
+卷积核依次为 5/3，通道 16/32，中间最大池化，末尾四段平均池化后线性分类。
+输入按训练集的 MFCC 通道均值和标准差归一化，统计量与网络一起保存到可信本地 joblib。
+
+`run_cnn_comparison.py` 调用与现有真实数据 SVM 相同的 `prepare_gitcode_manifest`：
+seed=42 打乱唯一 SHA-256 的组 ID 后，取 `StratifiedGroupKFold(5, shuffle=False)` 首折。
+同一份 rows 同时供两个模型使用；训练 200 条、测试 50 条，重复音频不跨集合。
+共享划分及数据指纹保存在 `reports/cnn/`，每个模型单独导出指标、混淆矩阵和逐条预测。
+这修正了旧报告方法文字的歧义；实际分组实现和原报告的数据指纹保持一致。
+
+训练参数预先固定：CPU 单线程，100 epochs，batch=32，Adam lr=0.003、weight_decay=1e-4。
+无测试集调参、早停或选模。真实 GitCode 实测 SVM 50/50、CNN 49/50，不能据此声称 CNN 更优，
+也不能声称说话人隔离。合成数据只用于离线测试，不作为这里的主比较结果。
+CLI 训练支持 cnn / svm_hamming；保存后的模型可由现有评估和 DigitRecognizer 接口直接使用。

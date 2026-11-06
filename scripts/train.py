@@ -11,12 +11,17 @@ from digit_asr.models import create_model, save_model
 def main():
     parser = argparse.ArgumentParser(description="Train using only the manifest train split")
     parser.add_argument("--manifest", type=Path, default=Path("data/samples/manifest.csv"))
-    parser.add_argument("--model", choices=["svm", "random_forest"], default="svm")
+    parser.add_argument(
+        "--model", choices=["svm", "svm_hamming", "random_forest", "cnn"], default="svm"
+    )
     parser.add_argument("--window", choices=["hann", "hamming"], default="hamming")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    config = FeatureConfig(window=args.window)
+    config = FeatureConfig(
+        window="hamming" if args.model == "svm_hamming" else args.window,
+        sequence_frames=64 if args.model == "cnn" else None,
+    )
     rows = read_manifest(args.manifest)
     x_train, y_train, selected = extract_split(rows, "train", config)
     model = create_model(args.model, args.seed)
@@ -29,7 +34,8 @@ def main():
         "train_paths": [r["path"] for r in selected],
         "dataset_sha256": dataset_fingerprint(rows),
     }
-    output = args.output or Path(f"artifacts/{args.model}_{args.window}/model.joblib")
+    name = "svm" if args.model == "svm_hamming" else args.model
+    output = args.output or Path(f"artifacts/{name}_{config.window}/model.joblib")
     save_model(output, model, config, metadata)
     print(json.dumps({"saved": str(output), "train_count": len(y_train)}))
 

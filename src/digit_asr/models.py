@@ -10,7 +10,15 @@ from digit_asr.features import FeatureConfig
 
 
 def create_model(name: str, seed: int = 42):
-    if name == "svm":
+    if name == "cnn":
+        try:
+            from digit_asr.cnn import CNNClassifier
+        except ModuleNotFoundError as error:
+            if error.name == "torch":
+                raise ImportError('CNN requires: pip install -e ".[torch]"') from error
+            raise
+        return CNNClassifier(seed=seed)
+    if name in ("svm", "svm_hamming"):
         return make_pipeline(StandardScaler(), SVC(C=10, kernel="rbf", gamma="scale"))
     if name == "random_forest":
         return RandomForestClassifier(n_estimators=200, random_state=seed, n_jobs=1)

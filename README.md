@@ -208,6 +208,41 @@ SVM 标准化仅拟合相应训练折，超参数沿用现有模型；测试集�
 现有 `train.py`、`eval.py` 可直接使用 `--manifest data/external/gitcode_digits/manifest.csv`；
 输出模型时指定 `--output artifacts/real/自选名称/model.joblib`。
 
+### 轻量 CNN 与 SVM Hamming：同一真实 GitCode 划分
+
+| 对比数据 | SVM Hamming 测试准确率 | CNN 测试准确率 |
+|---|---:|---:|
+| GitCode 真人录音，seed=42，同一 SHA-256 分组划分，训练 200 / 测试 50 | 100%（50/50） | 98%（49/50） |
+
+两项均为本次实际训练和测试结果；已核对与现有 SVM 报告的数据指纹及训练/测试路径完全一致。
+CNN 使用 Hamming MFCC，时间轴插值至 64 帧，13→16→32 通道的一维卷积、四段平均池化和
+10 类线性输出，共 **3,914 个参数**。MFCC 通道均值/标准差仅由训练集拟合。
+固定 seed=42、CPU 单线程训练 100 epochs、batch=32、Adam（lr=0.003，weight_decay=0.0001），
+没有使用测试集调参或选择训练轮数。该小测试集上 CNN 未超过 SVM；没有可验证的说话人 ID，
+这些结果不代表跨说话人泛化，合成样例的 100% 也不是本对比的主结果。
+
+PyTorch 是可选依赖，默认安装和 SVM 路径无需 PyTorch。复现真实数据对比：
+
+```powershell
+python -m pip install -e ".[torch]"
+python scripts/run_cnn_comparison.py
+digit-asr data/external/gitcode_digits/zero-1.wav --model artifacts/cnn/cnn/model.joblib
+```
+
+识别命令的音频路径请按实际解包目录调整。准确率、混淆矩阵、逐条预测、共享划分、
+环境与训练配置见 [CNN 对比报告](reports/cnn/summary.json) 和 [CNN 指标](reports/cnn/cnn/metrics.json)。
+模型保存在已忽略的 `artifacts/cnn/`，外部音频仍留在已忽略的 `data/external/`。
+
+单模型 CLI 支持 `--model cnn` 和 `--model svm_hamming`；原有默认值保持不变：
+
+```powershell
+python scripts/train.py --model cnn --manifest data/external/gitcode_digits/manifest.csv --output artifacts/cnn/custom/model.joblib
+python scripts/eval.py --manifest data/external/gitcode_digits/manifest.csv --model artifacts/cnn/custom/model.joblib --output reports/cnn/custom
+```
+
+CNN 测试只使用离线微型假数据；缺少 PyTorch 时自动跳过。默认 CI 不安装 PyTorch，
+独立 CNN CI 任务安装 `.[torch]` 并运行完整测试。
+
 ## 目录结构
 
 ```text

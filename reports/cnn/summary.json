@@ -1,0 +1,33 @@
+{
+  "source": "https://gitcode.com/Universal-Tool/9baeb",
+  "seed": 42,
+  "dataset_sha256": "7bd6d32e912f2222e2976eef9c80057c293bfe27454198f1ddd1b7622fecb8ff",
+  "split_method": "prepare_gitcode_manifest: seed-shuffled SHA256 IDs, SGKF(5) first fold",
+  "speaker_disjoint": false,
+  "limitation": "No verified speaker IDs; this is not cross-speaker evaluation",
+  "experiments": [
+    {
+      "model": "svm_hamming",
+      "accuracy": 1.0,
+      "correct": 50,
+      "total": 50
+    },
+    {
+      "model": "cnn",
+      "accuracy": 0.98,
+      "correct": 49,
+      "total": 50
+    }
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "torch": "2.15.0",
+      "numpy": "2.5.4",
+      "scikit-learn": "1.9.1",
+      "librosa": "1.0.0",
+      "joblib": "1.6.0"
+    }
+  }
+}
