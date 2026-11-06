@@ -91,6 +91,61 @@ SVM 的标准化仅在训练集拟合；保存模型同时保存特征配置。�
 
 ## 实验结果
 
+### 跨说话人主指标：AudioMNIST 真人英语 LOSO
+
+中文真人识别的主结果仍为下方 GitCode 实验。跨说话人泛化的主指标（简历使用）为
+**AudioMNIST 英语真人 Leave-One-Speaker-Out（LOSO）宏平均准确率**；
+次要指标为 **SpokeN-100 普通话 TTS／合成语音跨音色 LOSO**，不代表真人跨说话人能力。
+
+| 数据集 | 角色与语音性质 | 分组与样本 | 结果 |
+|---|---|---|---|
+| AudioMNIST | 主指标；英语真人录音 | 60 位真人，每位 500 条，共 30,000 条 | **98.61%**（29,583/30,000）；[逐人结果](reports/speaker_loso/audiomnist_summary.json) |
+| SpokeN-100 Mandarin 0–9 | 次要指标；普通话 TTS 合成 | 32 种合成音色，每种 10 条，共 320 条 | **91.5625%**（293/320）；[逐音色结果](reports/speaker_loso/spoken100_zh_summary.json) |
+
+两套实验均穷举全部组：训练 N−1 位说话人／音色，测试留出的一组。
+沿用现有 78 维 MFCC、Hamming 窗和 SVM（RBF，C=10，gamma=scale）；
+StandardScaler 每折仅拟合训练组，测试说话人不参与调参或选模。
+宏平均是各留出组准确率的算术平均；逐条预测和音频 SHA-256 见
+[评估目录](reports/speaker_loso/)。特征缓存保存在被忽略的 `artifacts/speaker_loso/`。
+
+中文公开孤立数字语料缺少可核验的说话人 ID：本项目使用的 GitCode 数据只有词与样本序号，
+因此 **GitCode 无法做真实中文 LOSO**。普通话 SpokeN-100 仅补充合成域内跨音色评估；
+其原始数字范围为 0–99，本实验只取 `mandarin_numbers/<音色>/0.wav` 至 `9.wav`，
+标签直接对应数字 0–9，排除 10–99，不做取模映射。
+
+数据来源与引用：
+
+- [AudioMNIST 官方仓库](https://github.com/soerenab/AudioMNIST)，MIT；Becker et al.,
+  *AudioMNIST: Exploring Explainable Artificial Intelligence for audio analysis on a simple benchmark*,
+  2023，[DOI](https://doi.org/10.1016/j.jfranklin.2023.11.038)。说话人 ID 与上游元数据逐一匹配。
+- [SpokeN-100 v1.0.0](https://zenodo.org/records/10810044)，CC BY 4.0；Groh, Goes & Kist,
+  *SpokeN-100: A Cross-Lingual Benchmarking Dataset for The Classification of Spoken Numbers in Different Languages*,
+  2024，[论文](https://arxiv.org/abs/2403.09753)。它完全由人工合成语音组成，音色 ID 并非真人身份。
+
+复现（项目根目录；首次运行需要网络及足够磁盘空间）：
+
+```powershell
+# 按要求从注册表刷新 PATH，再调用 Git
+$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
+git clone --depth 1 --filter=blob:none --sparse https://github.com/soerenab/AudioMNIST.git data/external/audiomnist
+git -C data/external/audiomnist sparse-checkout set data
+.\.venv\Scripts\python.exe scripts/download_spoken100_zh.py
+$env:OPENBLAS_NUM_THREADS='1'
+$env:OMP_NUM_THREADS='1'
+$env:MKL_NUM_THREADS='1'
+.\.venv\Scripts\python.exe scripts/run_speaker_loso.py --jobs 4
+.\.venv\Scripts\python.exe -m ruff check .
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Zenodo 下载器使用 HTTP Range，只提取普通话 0–9，逐文件校验 ZIP CRC32 与大小，
+重复运行可跳过已验证文件。所有第三方音频和下载元数据均位于已忽略的 `data/external/`，
+不会提交到仓库。`--dataset audiomnist` 或 `--dataset spoken100_zh` 可只运行其中一套；
+结果分别写入 `audiomnist_summary.json` 与 `spoken100_zh_summary.json`。
+本次 AudioMNIST 上游快照为 `630d7dab4c040882834de6fa21baf9a60372accd`，
+与完整环境版本一起记录于主指标 JSON；新下载的上游版本可能不同。
+测试使用微型离线夹具，不下载外部语料。
+
 ### 合成语音结果
 
 | 模型 | 窗函数 | 训练条数 | 测试正确/总数 | 实测准确率 |
